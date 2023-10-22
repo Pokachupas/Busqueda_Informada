@@ -1,0 +1,48 @@
+from queue import PriorityQueue
+
+# Definición del grafo con ciudades y distancias
+grafo = {
+    'Nueva York': {'Los Ángeles': 2444, 'Chicago': 789, 'Miami': 1288},
+    'Los Ángeles': {'Nueva York': 2444, 'Chicago': 1745},
+    'Chicago': {'Nueva York': 789, 'Los Ángeles': 1745, 'Houston': 1085},
+    'Miami': {'Nueva York': 1288, 'Houston': 1187},
+    'San Francisco': {'Los Ángeles': 348},
+    'Houston': {'Chicago': 1085, 'Miami': 1187},
+}
+
+# Función de búsqueda A*
+def a_star_search(grafo, inicio, destino):
+    cola_prioridad = PriorityQueue()
+    cola_prioridad.put((0, inicio, [inicio]))  # Iniciamos con un costo de 0, ciudad de inicio y camino.
+    visitados = set()
+
+    while not cola_prioridad.empty():
+        costo, ciudad_actual, camino = cola_prioridad.get()
+
+        if ciudad_actual == destino:
+            print("Ruta encontrada:", costo)
+            print("Camino:", " -> ".join(camino))
+            break
+
+        if ciudad_actual in visitados:
+            continue
+
+        visitados.add(ciudad_actual)
+
+        for vecino, distancia in grafo[ciudad_actual].items():
+            if vecino not in visitados:
+                nuevo_costo = costo + distancia
+                nuevo_camino = camino + [vecino]
+                heuristica = distancia_a_destino(grafo, vecino, destino)
+                costo_total = nuevo_costo + heuristica
+                cola_prioridad.put((costo_total, vecino, nuevo_camino))
+
+# Función que calcula la heurística (distancia estimada) desde una ciudad al destino
+def distancia_a_destino(grafo, ciudad, destino):
+    if ciudad in grafo and destino in grafo[ciudad]:
+        return grafo[ciudad][destino]
+    else:
+        return float('inf')  # Valor infinito si no se puede calcular la heurística.
+
+# Ejemplo de uso: buscamos la ruta desde "Nueva York" a "Los Ángeles".
+a_star_search(grafo, 'Nueva York', 'Los Ángeles')
